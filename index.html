@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE VAULT // Colección Privada</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        vault: {
+                            base: '#090a0f',
+                            card: '#12141d',
+                            border: '#1f2434',
+                            accent: '#6366f1',
+                            accentGlow: '#4f46e5',
+                            neonGreen: '#10b981',
+                            neonRed: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090a0f;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(18, 20, 29, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-glow {
+            box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.15);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+        }
+
+        .glow-text-green {
+            text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-indigo-500 selection:text-white flex flex-col justify-between min-h-screen">
+
+    <!-- Top Status Bar -->
+    <header class="w-full border-b border-white/5 bg-black/40 px-6 py-3 flex items-center justify-between text-xs font-mono text-gray-400">
+        <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="tracking-widest uppercase">VAULT PROTOCOL v2.6 // ONLINE</span>
+        </div>
+        <div id="session-status" class="text-gray-500 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> ENCRIPTADO
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl flex-grow flex items-center justify-center">
+
+        <!-- VIEW: REDEEM CODE (Página Principal) -->
+        <section id="view-redeem" class="w-full max-w-lg transition-all duration-300">
+            <div class="glass-panel glass-panel-glow rounded-2xl p-8 sm:p-10 border border-vault-border relative overflow-hidden">
+                <!-- Ambient Top Edge Accent -->
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+
+                <div class="text-center space-y-3 mb-8">
+                    <div class="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 mb-2">
+                        <i data-lucide="key-round" class="w-8 h-8 text-indigo-400"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white uppercase font-mono">
+                        CANJEAR PIEZA
+                    </h1>
+                    <p class="text-gray-400 text-sm max-w-xs mx-auto">
+                        Introduce tu código de acceso único para desbloquear tu identificador de colección.
+                    </p>
+                </div>
+
+                <!-- Input Form -->
+                <form id="redeem-form" class="space-y-5" onsubmit="event.preventDefault(); handleRedeem();">
+                    <div class="space-y-2">
+                        <label for="invite-code" class="block text-xs font-mono uppercase tracking-wider text-gray-400">Código de Acceso</label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="invite-code" 
+                                placeholder="EJ: VAULT-2026"
+                                class="w-full bg-black/50 border border-vault-border rounded-xl px-4 py-3.5 font-mono text-center text-lg tracking-widest text-white uppercase placeholder-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                                autocomplete="off"
+                                required
+                            >
+                            <button type="button" onclick="pasteFromClipboard()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-indigo-400 p-1.5 transition-colors" title="Pegar del portapapeles">
+                                <i data-lucide="clipboard" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error Feedback (Discreto, sin alarmas bruscas) -->
+                    <div id="redeem-error" class="hidden flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono transition-all">
+                        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                        <span id="redeem-error-text">El código ingresado no es válido o ya ha sido utilizado.</span>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3.5 px-6 rounded-xl transition-all transform active:scale-[0.99] shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 tracking-wide text-sm"
+                    >
+                        <span>DESBLOQUEAR ITEM</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <!-- Initial Helper Note -->
+                <div class="mt-8 pt-6 border-t border-white/5 text-center">
+                    <p class="text-xs text-gray-500 font-mono">
+                        ¿Necesitas un código? Solicítalo al administrador de la colección.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: RESULT MODAL / CARD (Éxito al Canjear) -->
+        <section id="view-result" class="hidden w-full max-w-lg transition-all duration-300">
+            <div class="glass-panel glass-panel-glow rounded-2xl p-8 sm:p-10 border border-emerald-500/30 relative overflow-hidden text-center space-y-6">
+                <!-- Top Glow Accent -->
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+
+                <div class="inline-flex items-center justify-center p-4 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400">
+                    <i data-lucide="sparkles" class="w-10 h-10 animate-bounce"></i>
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">¡Acceso Concedido!</span>
+                    <h2 class="text-2xl font-bold text-white">Tu Código de Colección</h2>
+                    <p class="text-xs text-gray-400 max-w-xs mx-auto">
+                        Guarda este identificador único generado de forma segura para ti.
+                    </p>
+                </div>
+
+                <!-- Generated Item Identifier Box -->
+                <div class="bg-black/60 border border-emerald-500/30 rounded-xl p-6 space-y-2 relative group">
+                    <span class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">IDENTIFICADOR DE PIEZA</span>
+                    <div id="generated-item-code" class="font-mono text-4xl font-extrabold text-emerald-400 tracking-widest glow-text-green">
+                        00000x
+                    </div>
+                    
+                    <button onclick="copyGeneratedCode()" class="mt-3 inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition-colors">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span id="copy-btn-text">Copiar Identificador</span>
+                    </button>
+                </div>
+
+                <!-- Instruction Box -->
+                <div class="bg-indigo-950/30 border border-indigo-500/20 rounded-xl p-4 text-left flex items-start gap-3">
+                    <i data-lucide="send" class="w-5 h-5 text-indigo-400 shrink-0 mt-0.5"></i>
+                    <div class="text-xs text-gray-300 leading-relaxed">
+                        <strong class="text-white block font-medium mb-0.5">Siguiente Paso:</strong>
+                        Copia este código y envíaselo al Admin para recibir tu pieza de la colección digital.
+                    </div>
+                </div>
+
+                <button 
+                    onclick="resetRedeemView()" 
+                    class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2"
+                >
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span>Volver al Inicio</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW: ADMIN LOGIN -->
+        <section id="view-admin-login" class="hidden w-full max-w-md transition-all duration-300">
+            <div class="glass-panel rounded-2xl p-8 border border-vault-border space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex items-center justify-center p-3 bg-red-500/10 rounded-xl border border-red-500/20 text-red-400 mb-1">
+                        <i data-lucide="lock" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-xl font-bold font-mono text-white">ACCESO ADMINISTRADOR</h2>
+                    <p class="text-xs text-gray-400">Ingresa la clave maestra para gestionar los códigos.</p>
+                </div>
+
+                <form id="admin-login-form" class="space-y-4" onsubmit="event.preventDefault(); verifyAdminPassword();">
+                    <div class="space-y-1">
+                        <label for="admin-pass" class="block text-xs font-mono uppercase text-gray-400">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="admin-pass" 
+                            placeholder="••••••••"
+                            class="w-full bg-black/50 border border-vault-border rounded-xl px-4 py-3 font-mono text-center text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                            required
+                        >
+                    </div>
+
+                    <div id="admin-login-error" class="hidden text-xs text-red-400 font-mono text-center bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+                        Contraseña incorrecta.
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button 
+                            type="button" 
+                            onclick="switchView('view-redeem')" 
+                            class="w-1/2 bg-white/5 hover:bg-white/10 text-gray-400 font-medium py-2.5 px-4 rounded-xl text-xs transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition-colors"
+                        >
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW: ADMIN DASHBOARD -->
+        <section id="view-admin-dashboard" class="hidden w-full transition-all duration-300">
+            <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-vault-border space-y-8">
+                
+                <!-- Dashboard Header -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-400">
+                            <i data-lucide="sliders" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold font-mono text-white">PANEL DE CONTROL ADMIN</h2>
+                            <p class="text-xs text-gray-400">Genera y gestiona códigos de un solo uso para tu grupo.</p>
+                        </div>
+                    </div>
+                    <button 
+                        onclick="logoutAdmin()" 
+                        class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 font-mono"
+                    >
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </div>
+
+                <!-- Create Code Section -->
+                <div class="bg-black/40 rounded-xl p-5 border border-white/5 space-y-4">
+                    <h3 class="text-xs font-mono uppercase tracking-wider text-indigo-400 font-semibold flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Crear Nuevo Código de Un Solo Uso
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <input 
+                                type="text" 
+                                id="new-custom-code" 
+                                placeholder="CÓDIGO PERSONALIZADO (OPCIONAL)"
+                                class="w-full bg-black/60 border border-vault-border rounded-xl px-4 py-2.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-all uppercase"
+                            >
+                        </div>
+                        <div class="flex gap-2">
+                            <button 
+                                onclick="generateRandomCodeInput()" 
+                                class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs font-mono px-3 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 shrink-0"
+                                title="Generar código aleatorio"
+                            >
+                                <i data-lucide="shuffle" class="w-4 h-4"></i>
+                                <span class="hidden sm:inline">Aleatorio</span>
+                            </button>
+                            <button 
+                                onclick="createNewCode()" 
+                                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20"
+                            >
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>Crear</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Codes List Table -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-mono uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4"></i> Códigos Registrados (<span id="total-codes-count">0</span>)
+                        </h3>
+                        <button 
+                            onclick="clearUsedCodes()" 
+                            class="text-[11px] text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1 font-mono"
+                        >
+                            <i data-lucide="trash-2" class="w-3 h-3"></i> Limpiar Usados
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-vault-border bg-black/30">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-white/5 border-b border-vault-border text-gray-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-3.5">Código</th>
+                                    <th class="p-3.5">Estado</th>
+                                    <th class="p-3.5">Item Asignado</th>
+                                    <th class="p-3.5">Creado</th>
+                                    <th class="p-3.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="codes-table-body" class="divide-y divide-white/5 text-gray-300">
+                                <!-- Filas generadas por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-white/5 bg-black/40 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-mono gap-3">
+        <div>
+            <span>VAULT DIGITAL COLLECTION</span> // <span>2026</span>
+        </div>
+        <div>
+            <button 
+                id="admin-trigger-btn"
+                onclick="openAdminAccess()" 
+                class="hover:text-indigo-400 transition-colors flex items-center gap-1.5 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5"
+            >
+                <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                <span id="admin-btn-label">Panel de Administración</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed bottom-16 right-6 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-none bg-vault-card border border-indigo-500/30 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-mono z-50">
+        <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+        <span id="toast-msg">Mensaje del sistema</span>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // CONFIGURACIÓN Y ESTADO INICIAL
+        const STORAGE_KEY = 'vault_collection_codes_v1';
+        const ADMIN_PASS = 'Tuvalu20';
+        let isAdminLoggedIn = false;
+
+        // Códigos de prueba por defecto si el storage está vacío
+        const DEFAULT_CODES = [
+            { id: '1', code: 'VAULT-2026', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null },
+            { id: '2', code: 'AMIGOS-DIGITAL', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null },
+            { id: '3', code: 'SECRET-CLUB-88', used: true, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: '74192b' }
+        ];
+
+        // INICIALIZACIÓN
+        window.addEventListener('DOMContentLoaded', () => {
+            initLucideIcons();
+            loadCodes();
+            renderCodesTable();
+        });
+
+        function initLucideIcons() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        // CONTROL DE ALMACENAMIENTO (localStorage)
+        function getStoredCodes() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CODES));
+                return DEFAULT_CODES;
+            }
+            try {
+                return JSON.parse(data);
+            } catch (e) {
+                return DEFAULT_CODES;
+            }
+        }
+
+        function saveCodes(codes) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
+            renderCodesTable();
+        }
+
+        function loadCodes() {
+            return getStoredCodes();
+        }
+
+        // NAVEGACIÓN ENTRE VISTAS
+        function switchView(viewId) {
+            const views = ['view-redeem', 'view-result', 'view-admin-login', 'view-admin-dashboard'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === viewId) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Actualizar etiqueta del footer
+            const adminBtnLabel = document.getElementById('admin-btn-label');
+            if (isAdminLoggedIn) {
+                adminBtnLabel.innerText = "Panel Admin (Activo)";
+            } else {
+                adminBtnLabel.innerText = "Panel de Administración";
+            }
+        }
+
+        // GENERADOR DE CÓDIGO DE COLECCIÓN DE 5 NÚMEROS Y 1 LETRA (ej: 63121o)
+        function generateCollectionItemCode() {
+            const digits = Math.floor(10000 + Math.random() * 90000).toString(); // 5 dígitos
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+            const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+            return `${digits}${randomLetter}`;
+        }
+
+        // CANJEAR CÓDIGO (Lógica Principal)
+        function handleRedeem() {
+            const inputEl = document.getElementById('invite-code');
+            const errorEl = document.getElementById('redeem-error');
+            const errorTextEl = document.getElementById('redeem-error-text');
+            
+            const rawCode = inputEl.value.trim().toUpperCase();
+
+            if (!rawCode) return;
+
+            const codes = getStoredCodes();
+            const foundIndex = codes.findIndex(c => c.code.toUpperCase() === rawCode);
+
+            if (foundIndex === -1) {
+                // Código no existe
+                showRedeemError("El código ingresado no es válido.");
+                return;
+            }
+
+            const targetCode = codes[foundIndex];
+
+            if (targetCode.used) {
+                // Código ya fue usado de un solo uso
+                showRedeemError("Este código de acceso ya ha sido utilizado anteriormente.");
+                return;
+            }
+
+            // ÉXITO: Desactivar código inmediatamente e invocar token único de colección
+            const itemCode = generateCollectionItemCode();
+            codes[foundIndex].used = true;
+            codes[foundIndex].assignedItem = itemCode;
+            codes[foundIndex].usedAt = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            
+            saveCodes(codes);
+
+            // Ocultar error previa si existía
+            errorEl.classList.add('hidden');
+            inputEl.value = '';
+
+            // Mostrar resultado en modal / vista elegante
+            document.getElementById('generated-item-code').innerText = itemCode;
+            switchView('view-result');
+            showToast("¡Código canjeado con éxito!", "check-circle");
+        }
+
+        function showRedeemError(msg) {
+            const errorEl = document.getElementById('redeem-error');
+            const errorTextEl = document.getElementById('redeem-error-text');
+            errorTextEl.innerText = msg;
+            errorEl.classList.remove('hidden');
+        }
+
+        function resetRedeemView() {
+            document.getElementById('redeem-error').classList.add('hidden');
+            switchView('view-redeem');
+        }
+
+        // ACCESO Y AUTENTICACIÓN ADMIN
+        function openAdminAccess() {
+            if (isAdminLoggedIn) {
+                switchView('view-admin-dashboard');
+            } else {
+                document.getElementById('admin-pass').value = '';
+                document.getElementById('admin-login-error').classList.add('hidden');
+                switchView('view-admin-login');
+            }
+        }
+
+        function verifyAdminPassword() {
+            const passInput = document.getElementById('admin-pass').value;
+            const errorEl = document.getElementById('admin-login-error');
+
+            if (passInput === ADMIN_PASS) {
+                isAdminLoggedIn = true;
+                errorEl.classList.add('hidden');
+                renderCodesTable();
+                switchView('view-admin-dashboard');
+                showToast("Sesión iniciada como Administrador", "shield-check");
+            } else {
+                errorEl.classList.remove('hidden');
+                document.getElementById('admin-pass').value = '';
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            switchView('view-redeem');
+            showToast("Sesión de administración cerrada", "log-out");
+        }
+
+        // GESTIÓN DE CÓDIGOS (ADMIN DASHBOARD)
+        function renderCodesTable() {
+            const codes = getStoredCodes();
+            const tableBody = document.getElementById('codes-table-body');
+            const totalCountEl = document.getElementById('total-codes-count');
+
+            totalCountEl.innerText = codes.length;
+            tableBody.innerHTML = '';
+
+            if (codes.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-gray-500 italic font-sans">
+                            No hay códigos registrados en el sistema.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            codes.forEach((c) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-white/[0.02] transition-colors';
+
+                const statusBadge = c.used 
+                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>USADO</span>`
+                    : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>ACTIVO</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-white tracking-wider">${escapeHtml(c.code)}</td>
+                    <td class="p-3.5">${statusBadge}</td>
+                    <td class="p-3.5 font-mono text-indigo-300">${c.assignedItem ? escapeHtml(c.assignedItem) : '<span class="text-gray-600">-</span>'}</td>
+                    <td class="p-3.5 text-gray-400 text-[11px]">${c.createdAt}</td>
+                    <td class="p-3.5 text-right space-x-2">
+                        <button 
+                            onclick="toggleCodeStatus('${c.id}')" 
+                            class="p-1 hover:text-amber-400 transition-colors" 
+                            title="${c.used ? 'Marcar como Activo' : 'Marcar como Usado'}"
+                        >
+                            <i data-lucide="${c.used ? 'rotate-ccw' : 'ban'}" class="w-4 h-4 inline"></i>
+                        </button>
+                        <button 
+                            onclick="deleteCode('${c.id}')" 
+                            class="p-1 hover:text-red-400 transition-colors" 
+                            title="Eliminar Código"
+                        >
+                            <i data-lucide="trash" class="w-4 h-4 inline"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            initLucideIcons();
+        }
+
+        function createNewCode() {
+            const inputEl = document.getElementById('new-custom-code');
+            let codeVal = inputEl.value.trim().toUpperCase();
+
+            if (!codeVal) {
+                codeVal = generateRandomOneTimeCode();
+            }
+
+            const codes = getStoredCodes();
+
+            // Comprobar duplicados
+            if (codes.some(c => c.code.toUpperCase() === codeVal)) {
+                showToast("El código ya existe en el sistema", "alert-triangle");
+                return;
+            }
+
+            const newEntry = {
+                id: Date.now().toString(),
+                code: codeVal,
+                used: false,
+                createdAt: new Date().toLocaleDateString('es-ES'),
+                assignedItem: null
+            };
+
+            codes.unshift(newEntry);
+            saveCodes(codes);
+
+            inputEl.value = '';
+            showToast(`Código ${codeVal} creado exitosamente`, "plus-circle");
+        }
+
+        function generateRandomCodeInput() {
+            const randomCode = generateRandomOneTimeCode();
+            document.getElementById('new-custom-code').value = randomCode;
+        }
+
+        function generateRandomOneTimeCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let res = 'VAULT-';
+            for (let i = 0; i < 4; i++) {
+                res += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return res;
+        }
+
+        function toggleCodeStatus(id) {
+            const codes = getStoredCodes();
+            const idx = codes.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                codes[idx].used = !codes[idx].used;
+                if (!codes[idx].used) {
+                    codes[idx].assignedItem = null;
+                }
+                saveCodes(codes);
+                showToast("Estado de código actualizado", "refresh-cw");
+            }
+        }
+
+        function deleteCode(id) {
+            let codes = getStoredCodes();
+            codes = codes.filter(c => c.id !== id);
+            saveCodes(codes);
+            showToast("Código eliminado", "trash-2");
+        }
+
+        function clearUsedCodes() {
+            let codes = getStoredCodes();
+            const activeOnly = codes.filter(c => !c.used);
+            if (activeOnly.length === codes.length) {
+                showToast("No hay códigos usados para limpiar", "info");
+                return;
+            }
+            saveCodes(activeOnly);
+            showToast("Códigos usados eliminados", "trash-2");
+        }
+
+        // UTILIDADES Y UX
+        function copyGeneratedCode() {
+            const textToCopy = document.getElementById('generated-item-code').innerText.trim();
+            copyToClipboard(textToCopy);
+            
+            const btnText = document.getElementById('copy-btn-text');
+            btnText.innerText = "¡Copiado!";
+            setTimeout(() => {
+                btnText.innerText = "Copiar Identificador";
+            }, 2000);
+            
+            showToast("Identificador copiado al portapapeles", "copy");
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {}
+            document.body.removeChild(textArea);
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        document.getElementById('invite-code').value = text.trim().toUpperCase();
+                    }
+                }
+            } catch (e) {
+                // Silencioso si no hay permisos de portapapeles
+            }
+        }
+
+        function showToast(msg, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            toastIcon.setAttribute('data-lucide', iconName);
+            initLucideIcons();
+
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
