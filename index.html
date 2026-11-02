@@ -57,10 +57,6 @@
             box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.15);
         }
 
-        .glow-text {
-            text-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
-        }
-
         .glow-text-green {
             text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
         }
@@ -75,9 +71,6 @@
             background: rgba(99, 102, 241, 0.3);
             border-radius: 3px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(99, 102, 241, 0.6);
-        }
     </style>
 </head>
 <body class="font-sans antialiased selection:bg-indigo-500 selection:text-white flex flex-col justify-between min-h-screen">
@@ -85,11 +78,11 @@
     <!-- Top Status Bar -->
     <header class="w-full border-b border-white/5 bg-black/40 px-6 py-3 flex items-center justify-between text-xs font-mono text-gray-400">
         <div class="flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="tracking-widest uppercase">VAULT PROTOCOL v2.6 // ONLINE</span>
+            <span id="sync-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span id="sync-text" class="tracking-widest uppercase">CONECTANDO A LA NUBE...</span>
         </div>
         <div id="session-status" class="text-gray-500 flex items-center gap-2">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> ENCRIPTADO
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> VAULT SYNC PROTOCOL
         </div>
     </header>
 
@@ -99,7 +92,6 @@
         <!-- VIEW: REDEEM CODE (Página Principal) -->
         <section id="view-redeem" class="w-full max-w-lg transition-all duration-300">
             <div class="glass-panel glass-panel-glow rounded-2xl p-8 sm:p-10 border border-vault-border relative overflow-hidden">
-                <!-- Ambient Top Edge Accent -->
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
 
                 <div class="text-center space-y-3 mb-8">
@@ -110,7 +102,7 @@
                         CANJEAR PIEZA
                     </h1>
                     <p class="text-gray-400 text-sm max-w-xs mx-auto">
-                        Introduce tu código de acceso único para desbloquear tu identificador de colección.
+                        Introduce tu código de acceso único para obtener tu identificador de colección.
                     </p>
                 </div>
 
@@ -140,6 +132,7 @@
                     </div>
 
                     <button 
+                        id="redeem-submit-btn"
                         type="submit" 
                         class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3.5 px-6 rounded-xl transition-all transform active:scale-[0.99] shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 tracking-wide text-sm"
                     >
@@ -148,7 +141,6 @@
                     </button>
                 </form>
 
-                <!-- Initial Helper Note -->
                 <div class="mt-8 pt-6 border-t border-white/5 text-center">
                     <p class="text-xs text-gray-500 font-mono">
                         ¿Necesitas un código? Solicítalo al administrador de la colección.
@@ -160,7 +152,6 @@
         <!-- VIEW: RESULT MODAL / CARD (Éxito al Canjear) -->
         <section id="view-result" class="hidden w-full max-w-lg transition-all duration-300">
             <div class="glass-panel glass-panel-glow rounded-2xl p-8 sm:p-10 border border-emerald-500/30 relative overflow-hidden text-center space-y-6">
-                <!-- Top Glow Accent -->
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
 
                 <div class="inline-flex items-center justify-center p-4 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400">
@@ -193,7 +184,7 @@
                     <i data-lucide="send" class="w-5 h-5 text-indigo-400 shrink-0 mt-0.5"></i>
                     <div class="text-xs text-gray-300 leading-relaxed">
                         <strong class="text-white block font-medium mb-0.5">Siguiente Paso:</strong>
-                        Copia este código y envíaselo al Admin para recibir tu pieza de la colección digital.
+                        Copia este código y envíaselo al Admin para recibir tu pieza en la colección digital.
                     </div>
                 </div>
 
@@ -265,7 +256,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-bold font-mono text-white">PANEL DE CONTROL ADMIN</h2>
-                            <p class="text-xs text-gray-400">Genera y gestiona códigos de un solo uso para tu grupo.</p>
+                            <p class="text-xs text-gray-400">Genera códigos en la nube sincronizados con tus amigos.</p>
                         </div>
                     </div>
                     <button 
@@ -316,7 +307,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="text-xs font-mono uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                            <i data-lucide="list" class="w-4 h-4"></i> Códigos Registrados (<span id="total-codes-count">0</span>)
+                            <i data-lucide="list" class="w-4 h-4"></i> Códigos en la Nube (<span id="total-codes-count">0</span>)
                         </h3>
                         <button 
                             onclick="clearUsedCodes()" 
@@ -338,7 +329,11 @@
                                 </tr>
                             </thead>
                             <tbody id="codes-table-body" class="divide-y divide-white/5 text-gray-300">
-                                <!-- Filas generadas por JS -->
+                                <tr>
+                                    <td colspan="5" class="p-6 text-center text-gray-500 font-sans">
+                                        Cargando datos desde la nube...
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -372,131 +367,180 @@
         <span id="toast-msg">Mensaje del sistema</span>
     </div>
 
-    <!-- Application Script Logic -->
-    <script>
-        // CONFIGURACIÓN Y ESTADO INICIAL
-        const STORAGE_KEY = 'vault_collection_codes_v1';
+    <!-- FIREBASE & APPLICATION LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vault-collection-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "demo-api-key",
+                authDomain: "demo-app.firebaseapp.com",
+                projectId: "demo-app",
+                storageBucket: "demo-app.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:demo"
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         const ADMIN_PASS = 'Tuvalu20';
         let isAdminLoggedIn = false;
+        let localCodesList = [];
+        let isAuthReady = false;
 
-        // Códigos de prueba por defecto si el storage está vacío
-        const DEFAULT_CODES = [
-            { id: '1', code: 'VAULT-2026', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null },
-            { id: '2', code: 'AMIGOS-DIGITAL', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null },
-            { id: '3', code: 'SECRET-CLUB-88', used: true, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: '74192b' }
-        ];
+        // Path Firestore cumpliendo RULE 1
+        const PUBLIC_COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'invite_codes'];
 
-        // INICIALIZACIÓN
-        window.addEventListener('DOMContentLoaded', () => {
-            initLucideIcons();
-            loadCodes();
-            renderCodesTable();
+        // Autenticación inicial antes de cualquier operación
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Auth warning, fallback anonymous:", err);
+                try {
+                    await signInAnonymously(auth);
+                } catch (e) {
+                    console.error("Auth Error:", e);
+                }
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                isAuthReady = true;
+                updateSyncStatus(true, "CONECTADO A LA NUBE");
+                subscribeToCodes();
+            } else {
+                updateSyncStatus(false, "AUTENTICANDO...");
+            }
         });
 
-        function initLucideIcons() {
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        }
+        // Suscripción Firestore en tiempo real (RULE 2: Consulta simple sin ORDER BY para evitar índices)
+        function subscribeToCodes() {
+            if (!auth.currentUser) return;
 
-        // CONTROL DE ALMACENAMIENTO (localStorage)
-        function getStoredCodes() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (!data) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CODES));
-                return DEFAULT_CODES;
-            }
-            try {
-                return JSON.parse(data);
-            } catch (e) {
-                return DEFAULT_CODES;
-            }
-        }
+            const colRef = collection(db, ...PUBLIC_COLLECTION_PATH);
+            
+            onSnapshot(colRef, (snapshot) => {
+                const codes = [];
+                snapshot.forEach((docSnap) => {
+                    codes.push({ id: docSnap.id, ...docSnap.data() });
+                });
 
-        function saveCodes(codes) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
-            renderCodesTable();
-        }
+                // Ordenar en memoria en JS para evitar compound index errors
+                codes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-        function loadCodes() {
-            return getStoredCodes();
-        }
+                localCodesList = codes;
 
-        // NAVEGACIÓN ENTRE VISTAS
-        function switchView(viewId) {
-            const views = ['view-redeem', 'view-result', 'view-admin-login', 'view-admin-dashboard'];
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    if (id === viewId) {
-                        el.classList.remove('hidden');
-                    } else {
-                        el.classList.add('hidden');
-                    }
+                // Si la colección está vacía al inicio, sembrar unos datos iniciales por defecto
+                if (codes.length === 0 && isAdminLoggedIn) {
+                    seedDefaultCodes();
                 }
-            });
 
-            // Actualizar etiqueta del footer
-            const adminBtnLabel = document.getElementById('admin-btn-label');
-            if (isAdminLoggedIn) {
-                adminBtnLabel.innerText = "Panel Admin (Activo)";
-            } else {
-                adminBtnLabel.innerText = "Panel de Administración";
+                renderCodesTable();
+                updateSyncStatus(true, "SINCRONIZADO EN TIEMPO REAL");
+            }, (error) => {
+                console.error("Error en Firestore snapshot:", error);
+                updateSyncStatus(false, "ERROR DE CONEXIÓN");
+            });
+        }
+
+        async function seedDefaultCodes() {
+            const initialCodes = [
+                { code: 'VAULT-2026', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null, timestamp: Date.now() },
+                { code: 'AMIGOS-DIGITAL', used: false, createdAt: new Date().toLocaleDateString('es-ES'), assignedItem: null, timestamp: Date.now() - 1000 }
+            ];
+            for (const item of initialCodes) {
+                const newDocRef = doc(collection(db, ...PUBLIC_COLLECTION_PATH));
+                await setDoc(newDocRef, item);
             }
         }
 
-        // GENERADOR DE CÓDIGO DE COLECCIÓN DE 5 NÚMEROS Y 1 LETRA (ej: 63121o)
+        function updateSyncStatus(online, text) {
+            const indicator = document.getElementById('sync-indicator');
+            const textEl = document.getElementById('sync-text');
+            if (online) {
+                indicator.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                textEl.innerText = text;
+            } else {
+                indicator.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                textEl.innerText = text;
+            }
+        }
+
+        // GENERADOR DE CÓDIGO DE COLECCIÓN (5 números + 1 letra)
         function generateCollectionItemCode() {
-            const digits = Math.floor(10000 + Math.random() * 90000).toString(); // 5 dígitos
+            const digits = Math.floor(10000 + Math.random() * 90000).toString();
             const letters = 'abcdefghijklmnopqrstuvwxyz';
             const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
             return `${digits}${randomLetter}`;
         }
 
         // CANJEAR CÓDIGO (Lógica Principal)
-        function handleRedeem() {
+        window.handleRedeem = async function() {
             const inputEl = document.getElementById('invite-code');
-            const errorEl = document.getElementById('redeem-error');
-            const errorTextEl = document.getElementById('redeem-error-text');
-            
+            const submitBtn = document.getElementById('redeem-submit-btn');
             const rawCode = inputEl.value.trim().toUpperCase();
 
             if (!rawCode) return;
+            if (!isAuthReady) {
+                showRedeemError("Conectando con el servidor, reintenta en unos segundos...");
+                return;
+            }
 
-            const codes = getStoredCodes();
-            const foundIndex = codes.findIndex(c => c.code.toUpperCase() === rawCode);
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
 
-            if (foundIndex === -1) {
-                // Código no existe
+            const targetCodeObj = localCodesList.find(c => c.code.toUpperCase() === rawCode);
+
+            if (!targetCodeObj) {
                 showRedeemError("El código ingresado no es válido.");
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
                 return;
             }
 
-            const targetCode = codes[foundIndex];
-
-            if (targetCode.used) {
-                // Código ya fue usado de un solo uso
-                showRedeemError("Este código de acceso ya ha sido utilizado anteriormente.");
+            if (targetCodeObj.used) {
+                showRedeemError("Este código de acceso ya ha sido utilizado.");
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
                 return;
             }
 
-            // ÉXITO: Desactivar código inmediatamente e invocar token único de colección
+            // Éxito: Generar identificador de pieza y actualizar en Firestore
             const itemCode = generateCollectionItemCode();
-            codes[foundIndex].used = true;
-            codes[foundIndex].assignedItem = itemCode;
-            codes[foundIndex].usedAt = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-            
-            saveCodes(codes);
+            try {
+                const docRef = doc(db, ...PUBLIC_COLLECTION_PATH, targetCodeObj.id);
+                await updateDoc(docRef, {
+                    used: true,
+                    assignedItem: itemCode,
+                    usedAt: new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})
+                });
 
-            // Ocultar error previa si existía
-            errorEl.classList.add('hidden');
-            inputEl.value = '';
-
-            // Mostrar resultado en modal / vista elegante
-            document.getElementById('generated-item-code').innerText = itemCode;
-            switchView('view-result');
-            showToast("¡Código canjeado con éxito!", "check-circle");
-        }
+                document.getElementById('redeem-error').classList.add('hidden');
+                inputEl.value = '';
+                document.getElementById('generated-item-code').innerText = itemCode;
+                switchView('view-result');
+                showToast("¡Código canjeado con éxito!", "check-circle");
+            } catch (err) {
+                console.error("Error al canjear:", err);
+                showRedeemError("Error al procesar el código. Reintenta.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+            }
+        };
 
         function showRedeemError(msg) {
             const errorEl = document.getElementById('redeem-error');
@@ -505,13 +549,13 @@
             errorEl.classList.remove('hidden');
         }
 
-        function resetRedeemView() {
+        window.resetRedeemView = function() {
             document.getElementById('redeem-error').classList.add('hidden');
             switchView('view-redeem');
-        }
+        };
 
-        // ACCESO Y AUTENTICACIÓN ADMIN
-        function openAdminAccess() {
+        // ADMIN LOGIN & CONTROLES
+        window.openAdminAccess = function() {
             if (isAdminLoggedIn) {
                 switchView('view-admin-dashboard');
             } else {
@@ -519,9 +563,9 @@
                 document.getElementById('admin-login-error').classList.add('hidden');
                 switchView('view-admin-login');
             }
-        }
+        };
 
-        function verifyAdminPassword() {
+        window.verifyAdminPassword = function() {
             const passInput = document.getElementById('admin-pass').value;
             const errorEl = document.getElementById('admin-login-error');
 
@@ -530,40 +574,41 @@
                 errorEl.classList.add('hidden');
                 renderCodesTable();
                 switchView('view-admin-dashboard');
-                showToast("Sesión iniciada como Administrador", "shield-check");
+                showToast("Sesión de Admin iniciada", "shield-check");
             } else {
                 errorEl.classList.remove('hidden');
                 document.getElementById('admin-pass').value = '';
             }
-        }
+        };
 
-        function logoutAdmin() {
+        window.logoutAdmin = function() {
             isAdminLoggedIn = false;
             switchView('view-redeem');
-            showToast("Sesión de administración cerrada", "log-out");
-        }
+            showToast("Sesión cerrada", "log-out");
+        };
 
-        // GESTIÓN DE CÓDIGOS (ADMIN DASHBOARD)
+        // ADMINISTRACIÓN DE CÓDIGOS (NUBE)
         function renderCodesTable() {
-            const codes = getStoredCodes();
             const tableBody = document.getElementById('codes-table-body');
             const totalCountEl = document.getElementById('total-codes-count');
 
-            totalCountEl.innerText = codes.length;
+            if (!tableBody) return;
+
+            totalCountEl.innerText = localCodesList.length;
             tableBody.innerHTML = '';
 
-            if (codes.length === 0) {
+            if (localCodesList.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="p-6 text-center text-gray-500 italic font-sans">
-                            No hay códigos registrados en el sistema.
+                        <td colspan="5" class="p-6 text-center text-gray-500 font-sans">
+                            No hay códigos activos en la nube. ¡Crea el primero arriba!
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            codes.forEach((c) => {
+            localCodesList.forEach((c) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-white/[0.02] transition-colors';
 
@@ -575,19 +620,19 @@
                     <td class="p-3.5 font-bold text-white tracking-wider">${escapeHtml(c.code)}</td>
                     <td class="p-3.5">${statusBadge}</td>
                     <td class="p-3.5 font-mono text-indigo-300">${c.assignedItem ? escapeHtml(c.assignedItem) : '<span class="text-gray-600">-</span>'}</td>
-                    <td class="p-3.5 text-gray-400 text-[11px]">${c.createdAt}</td>
+                    <td class="p-3.5 text-gray-400 text-[11px]">${c.createdAt || '-'}</td>
                     <td class="p-3.5 text-right space-x-2">
                         <button 
-                            onclick="toggleCodeStatus('${c.id}')" 
+                            onclick="toggleCodeStatus('${c.id}', ${c.used})" 
                             class="p-1 hover:text-amber-400 transition-colors" 
-                            title="${c.used ? 'Marcar como Activo' : 'Marcar como Usado'}"
+                            title="${c.used ? 'Reactivar Código' : 'Marcar como Usado'}"
                         >
                             <i data-lucide="${c.used ? 'rotate-ccw' : 'ban'}" class="w-4 h-4 inline"></i>
                         </button>
                         <button 
                             onclick="deleteCode('${c.id}')" 
                             class="p-1 hover:text-red-400 transition-colors" 
-                            title="Eliminar Código"
+                            title="Eliminar de la nube"
                         >
                             <i data-lucide="trash" class="w-4 h-4 inline"></i>
                         </button>
@@ -596,10 +641,10 @@
                 tableBody.appendChild(tr);
             });
 
-            initLucideIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
-        function createNewCode() {
+        window.createNewCode = async function() {
             const inputEl = document.getElementById('new-custom-code');
             let codeVal = inputEl.value.trim().toUpperCase();
 
@@ -607,33 +652,32 @@
                 codeVal = generateRandomOneTimeCode();
             }
 
-            const codes = getStoredCodes();
-
-            // Comprobar duplicados
-            if (codes.some(c => c.code.toUpperCase() === codeVal)) {
+            if (localCodesList.some(c => c.code.toUpperCase() === codeVal)) {
                 showToast("El código ya existe en el sistema", "alert-triangle");
                 return;
             }
 
-            const newEntry = {
-                id: Date.now().toString(),
-                code: codeVal,
-                used: false,
-                createdAt: new Date().toLocaleDateString('es-ES'),
-                assignedItem: null
-            };
+            try {
+                const newDocRef = doc(collection(db, ...PUBLIC_COLLECTION_PATH));
+                await setDoc(newDocRef, {
+                    code: codeVal,
+                    used: false,
+                    createdAt: new Date().toLocaleDateString('es-ES'),
+                    assignedItem: null,
+                    timestamp: Date.now()
+                });
 
-            codes.unshift(newEntry);
-            saveCodes(codes);
+                inputEl.value = '';
+                showToast(`Código ${codeVal} creado y publicado`, "plus-circle");
+            } catch (err) {
+                console.error("Error al crear código:", err);
+                showToast("Error al guardar en la nube", "alert-circle");
+            }
+        };
 
-            inputEl.value = '';
-            showToast(`Código ${codeVal} creado exitosamente`, "plus-circle");
-        }
-
-        function generateRandomCodeInput() {
-            const randomCode = generateRandomOneTimeCode();
-            document.getElementById('new-custom-code').value = randomCode;
-        }
+        window.generateRandomCodeInput = function() {
+            document.getElementById('new-custom-code').value = generateRandomOneTimeCode();
+        };
 
         function generateRandomOneTimeCode() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -644,62 +688,73 @@
             return res;
         }
 
-        function toggleCodeStatus(id) {
-            const codes = getStoredCodes();
-            const idx = codes.findIndex(c => c.id === id);
-            if (idx !== -1) {
-                codes[idx].used = !codes[idx].used;
-                if (!codes[idx].used) {
-                    codes[idx].assignedItem = null;
-                }
-                saveCodes(codes);
+        window.toggleCodeStatus = async function(id, currentUsedStatus) {
+            try {
+                const docRef = doc(db, ...PUBLIC_COLLECTION_PATH, id);
+                await updateDoc(docRef, {
+                    used: !currentUsedStatus,
+                    assignedItem: !currentUsedStatus ? null : undefined
+                });
                 showToast("Estado de código actualizado", "refresh-cw");
+            } catch (err) {
+                console.error(err);
             }
-        }
+        };
 
-        function deleteCode(id) {
-            let codes = getStoredCodes();
-            codes = codes.filter(c => c.id !== id);
-            saveCodes(codes);
-            showToast("Código eliminado", "trash-2");
-        }
+        window.deleteCode = async function(id) {
+            try {
+                const docRef = doc(db, ...PUBLIC_COLLECTION_PATH, id);
+                await deleteDoc(docRef);
+                showToast("Código eliminado de la nube", "trash-2");
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
-        function clearUsedCodes() {
-            let codes = getStoredCodes();
-            const activeOnly = codes.filter(c => !c.used);
-            if (activeOnly.length === codes.length) {
+        window.clearUsedCodes = async function() {
+            const usedCodes = localCodesList.filter(c => c.used);
+            if (usedCodes.length === 0) {
                 showToast("No hay códigos usados para limpiar", "info");
                 return;
             }
-            saveCodes(activeOnly);
-            showToast("Códigos usados eliminados", "trash-2");
-        }
+            try {
+                for (const c of usedCodes) {
+                    await deleteDoc(doc(db, ...PUBLIC_COLLECTION_PATH, c.id));
+                }
+                showToast("Códigos usados eliminados", "trash-2");
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
-        // UTILIDADES Y UX
-        function copyGeneratedCode() {
+        // AUXILIARES DE UI & NAVEGACIÓN
+        window.switchView = function(viewId) {
+            const views = ['view-redeem', 'view-result', 'view-admin-login', 'view-admin-dashboard'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === viewId) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+
+            const adminBtnLabel = document.getElementById('admin-btn-label');
+            if (adminBtnLabel) {
+                adminBtnLabel.innerText = isAdminLoggedIn ? "Panel Admin (Activo)" : "Panel de Administración";
+            }
+        };
+
+        window.copyGeneratedCode = function() {
             const textToCopy = document.getElementById('generated-item-code').innerText.trim();
             copyToClipboard(textToCopy);
             
             const btnText = document.getElementById('copy-btn-text');
             btnText.innerText = "¡Copiado!";
-            setTimeout(() => {
-                btnText.innerText = "Copiar Identificador";
-            }, 2000);
-            
+            setTimeout(() => { btnText.innerText = "Copiar Identificador"; }, 2000);
             showToast("Identificador copiado al portapapeles", "copy");
-        }
+        };
 
         function copyToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).catch(() => {
-                    fallbackCopyTextToClipboard(text);
-                });
-            } else {
-                fallbackCopyTextToClipboard(text);
-            }
-        }
-
-        function fallbackCopyTextToClipboard(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
             textArea.style.position = "fixed";
@@ -708,13 +763,11 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            try {
-                document.execCommand('copy');
-            } catch (err) {}
+            try { document.execCommand('copy'); } catch (err) {}
             document.body.removeChild(textArea);
         }
 
-        async function pasteFromClipboard() {
+        window.pasteFromClipboard = async function() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     const text = await navigator.clipboard.readText();
@@ -722,19 +775,19 @@
                         document.getElementById('invite-code').value = text.trim().toUpperCase();
                     }
                 }
-            } catch (e) {
-                // Silencioso si no hay permisos de portapapeles
-            }
-        }
+            } catch (e) {}
+        };
 
         function showToast(msg, iconName = 'info') {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-msg');
             const toastIcon = document.getElementById('toast-icon');
 
+            if (!toast || !toastMsg) return;
+
             toastMsg.innerText = msg;
             toastIcon.setAttribute('data-lucide', iconName);
-            initLucideIcons();
+            if (window.lucide) lucide.createIcons();
 
             toast.classList.remove('translate-y-10', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
@@ -753,6 +806,10 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+
+        // Iniciar autenticación al cargar la página
+        initAuth();
+        if (window.lucide) lucide.createIcons();
     </script>
 </body>
 </html>
